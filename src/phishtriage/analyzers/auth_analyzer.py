@@ -51,13 +51,11 @@ import re
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from functools import lru_cache
-from typing import Any, Final
+from typing import Final
 
 import dns.exception
 import dns.rdata
 import dns.resolver
-import tldextract
 
 from phishtriage.config import Settings, get_settings
 from phishtriage.core.models import (
@@ -69,6 +67,7 @@ from phishtriage.core.models import (
     DmarcPolicy,
     ParsedMessage,
 )
+from phishtriage.core.utils import org_domain
 from phishtriage.logging_config import get_logger
 from phishtriage.parsers.base import clean_header_text
 
@@ -224,40 +223,13 @@ def _normalize_ip(value: str | None) -> _IPAddress | None:
     return ip
 
 
-@lru_cache(maxsize=1)
-def _extractor() -> "tldextract.TLDExtract | None":
-    """tldextract using only its bundled suffix snapshot (no network, no disk cache)."""
-    try:
-        return tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None)
-    except Exception:  # noqa: BLE001
-        logger.debug("tldextract unavailable; using two-label fallback", exc_info=True)
-        return None
-
-
-@lru_cache(maxsize=2048)
-def _org_domain(domain: str) -> str:
-    """Organizational domain (registrable domain); falls back to the last two labels."""
-    extractor = _extractor()
-    if extractor is not None:
-        try:
-            parts = extractor(domain)
-            registered = getattr(parts, "top_domain_under_public_suffix", "") or getattr(
-                parts, "registered_domain", ""
-            )
-            if registered:
-                return str(registered).lower()
-        except Exception:  # noqa: BLE001
-            logger.debug("tldextract failed for %r", domain, exc_info=True)
-    return ".".join(domain.lower().rstrip(".").split(".")[-2:])
-
-
 def _aligned(identifier: str, from_domain: str, *, strict: bool) -> bool | None:
     """DMARC identifier alignment; ``None`` when either side is unknown."""
     if not identifier or not from_domain:
         return None
     if strict:
         return identifier == from_domain
-    return _org_domain(identifier) == _org_domain(from_domain)
+    return org_domain(identifier) == org_domain(from_domain)
 
 
 # ====================================================== header parsing (RFC 8601)
@@ -336,7 +308,10 @@ def _parse_received_spf(value: str) -> _ReceivedSpf | None:
         pairs.setdefault(key.lower(), val.strip('"'))
     domain = _domain_of(pairs.get("envelope-from", "")) or _domain_of(pairs.get("helo", ""))
     return _ReceivedSpf(
-        status=_STATUS_MAP[word], domain=domain, client_ip=pairs.get("client-ip", ""), raw=text[:500]
+        status=_STATUS_MAP[word],
+        domain=domain,
+        client_ip=pairs.get("client-ip", ""),
+        raw=text[:500],
     )
 
 
@@ -382,7 +357,9 @@ class _DnsTemp(Exception):
 class _Dns:
     """Small caching resolver wrapper with a shared time budget."""
 
-    def __init__(self, nameservers: list[str], timeout: float, lifetime: float, budget: float) -> None:
+    def __init__(
+        self, nameservers: list[str], timeout: float, lifetime: float, budget: float
+    ) -> None:
         self._deadline = time.monotonic() + budget
         self._cache: dict[tuple[str, str], list[dns.rdata.Rdata]] = {}
         self._resolver: dns.resolver.Resolver | None
@@ -549,7 +526,9 @@ class _SpfEvaluator:
             self._count_lookup()
             sub = self._check(redirect)
             if sub is AuthStatus.NONE:
-                raise _SpfAbort(AuthStatus.PERMERROR, f"Redirect target {redirect} has no SPF record.")
+                raise _SpfAbort(
+                    AuthStatus.PERMERROR, f"Redirect target {redirect} has no SPF record."
+                )
             return sub
         self.matched = "(no mechanism matched)"
         return AuthStatus.NEUTRAL
@@ -580,10 +559,14 @@ class _SpfEvaluator:
                 return found
             sub = self._check(target)
             if sub is AuthStatus.NONE:
-                raise _SpfAbort(AuthStatus.PERMERROR, f"Included domain {target} has no SPF record.")
+                raise _SpfAbort(
+                    AuthStatus.PERMERROR, f"Included domain {target} has no SPF record."
+                )
             return sub is AuthStatus.PASS
         if mech == "ptr":
-            raise _SpfUnsupported("SPF record uses the deprecated 'ptr' mechanism, which is not evaluated.")
+            raise _SpfUnsupported(
+                "SPF record uses the deprecated 'ptr' mechanism, which is not evaluated."
+            )
         raise _SpfAbort(AuthStatus.PERMERROR, f"Unknown SPF mechanism {mech!r}.")
 
     def _match_ip(self, mech: str, value: str) -> bool:
@@ -601,7 +584,9 @@ class _SpfEvaluator:
             self._void()
             return False
         prefix = v4 if self._ip.version == 4 else v6
-        return any(self._ip in ipaddress.ip_network(f"{a}/{prefix}", strict=False) for a in addresses)
+        return any(
+            self._ip in ipaddress.ip_network(f"{a}/{prefix}", strict=False) for a in addresses
+        )
 
     def _match_mx(self, domain: str, v4: int, v6: int) -> bool:
         hosts = self._dns.mx(domain)
@@ -648,7 +633,7 @@ def _fetch_dmarc(
 ) -> tuple[DmarcPolicy | None, bool]:
     """Return ``(policy, lookup_ok)``. ``(None, True)`` means no record exists."""
     candidates = [from_domain]
-    org = _org_domain(from_domain)
+    org = org_domain(from_domain)
     if org and org != from_domain:
         candidates.append(org)
     for domain in candidates:
@@ -659,7 +644,9 @@ def _fetch_dmarc(
             return None, False
         found = [r for r in records if _DMARC_PREFIX_RE.match(r)]
         if len(found) > 1:
-            warnings.append(f"Multiple DMARC records at _dmarc.{domain}; they are ignored (RFC 7489).")
+            warnings.append(
+                f"Multiple DMARC records at _dmarc.{domain}; they are ignored (RFC 7489)."
+            )
             continue
         if found:
             return _parse_dmarc_record(domain, found[0]), True
@@ -740,7 +727,9 @@ class AuthAnalyzer:
             return None
         return _Dns(self._nameservers, self._dns_timeout, self._dns_lifetime, self._dns_budget)
 
-    def _analyze(self, message: ParsedMessage, client_ip: str | None, helo: str | None) -> AuthReport:
+    def _analyze(
+        self, message: ParsedMessage, client_ip: str | None, helo: str | None
+    ) -> AuthReport:
         warnings: list[str] = []
         from_domain = _domain_of(message.from_address.domain) if message.from_address else ""
         if not from_domain:
@@ -879,7 +868,9 @@ class AuthAnalyzer:
         domain = _domain_of(message.return_path) or _domain_of(helo or "")
         aligned = _aligned(domain, from_domain, strict=strict)
 
-        def result(status: AuthStatus, source: AuthSource, detail: str, raw: str = "") -> AuthResult:
+        def result(
+            status: AuthStatus, source: AuthSource, detail: str, raw: str = ""
+        ) -> AuthResult:
             return AuthResult(
                 method=AuthMethod.SPF,
                 status=status,
@@ -910,7 +901,9 @@ class AuthAnalyzer:
             except _DnsTemp as exc:
                 return result(AuthStatus.TEMPERROR, AuthSource.DNS, f"SPF lookup failed: {exc}.")
             if not records:
-                return result(AuthStatus.NONE, AuthSource.DNS, f"No SPF record published for {domain}.")
+                return result(
+                    AuthStatus.NONE, AuthSource.DNS, f"No SPF record published for {domain}."
+                )
             return result(
                 AuthStatus.UNKNOWN,
                 AuthSource.DNS,
@@ -1014,7 +1007,9 @@ class AuthAnalyzer:
 
         if sig.malformed:
             return result(
-                AuthStatus.PERMERROR, AuthSource.HEADER, "Malformed DKIM-Signature (missing d= or s=)."
+                AuthStatus.PERMERROR,
+                AuthSource.HEADER,
+                "Malformed DKIM-Signature (missing d= or s=).",
             )
         if resolver is None:
             return result(
@@ -1026,7 +1021,9 @@ class AuthAnalyzer:
         try:
             records = [r for r in resolver.txt(name) if "p=" in r.lower()]
         except _DnsTemp as exc:
-            return result(AuthStatus.TEMPERROR, AuthSource.DNS, f"Key lookup for {name} failed: {exc}.")
+            return result(
+                AuthStatus.TEMPERROR, AuthSource.DNS, f"Key lookup for {name} failed: {exc}."
+            )
         if not records:
             return result(
                 AuthStatus.PERMERROR,
@@ -1035,8 +1032,12 @@ class AuthAnalyzer:
             )
         tags = _tag_list(records[0])
         if not tags.get("p", "").strip():
-            return result(AuthStatus.FAIL, AuthSource.DNS, f"DKIM key at {name} is revoked (empty p=).")
-        note = " The key is in test mode (t=y)." if "y" in tags.get("t", "").lower().split(":") else ""
+            return result(
+                AuthStatus.FAIL, AuthSource.DNS, f"DKIM key at {name} is revoked (empty p=)."
+            )
+        note = (
+            " The key is in test mode (t=y)." if "y" in tags.get("t", "").lower().split(":") else ""
+        )
         return result(
             AuthStatus.UNKNOWN,
             AuthSource.DNS,
@@ -1071,7 +1072,11 @@ class AuthAnalyzer:
                 status=status,
                 source=AuthSource.HEADER,
                 domain=header_from or from_domain,
-                aligned=True if status is AuthStatus.PASS else False if status is AuthStatus.FAIL else None,
+                aligned=True
+                if status is AuthStatus.PASS
+                else False
+                if status is AuthStatus.FAIL
+                else None,
                 detail=f"Reported by {ar.authserv_id}. {summary}".strip(),
                 raw=ar.raw,
             )
@@ -1089,7 +1094,9 @@ class AuthAnalyzer:
             )
 
         if not from_domain:
-            return result(AuthStatus.UNKNOWN, AuthSource.ABSENT, None, "No From domain to evaluate.")
+            return result(
+                AuthStatus.UNKNOWN, AuthSource.ABSENT, None, "No From domain to evaluate."
+            )
         if policy_checked and policy is None:
             return result(
                 AuthStatus.NONE,

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Phishing Triage{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <!-- Tailwind play CDN, pinned. The CSP allows exactly this host (see api/app.py). -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+</head>
+<body class="min-h-full bg-slate-950 text-slate-200 antialiased">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded focus:bg-slate-800 focus:px-3 focus:py-2">Skip to content</a>
+
+  <header class="border-b border-slate-800 bg-slate-900/70 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <a href="/" class="flex items-center gap-3 text-slate-100 no-underline">
+        <svg class="h-7 w-7 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3 4 6v6c0 4.5 3.2 7.8 8 9 4.8-1.2 8-4.5 8-9V6l-8-3Z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <span class="text-lg font-semibold tracking-tight">Phishing Triage</span>
+        <span class="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-slate-400">v{{ version }}</span>
+      </a>
+      <div class="flex items-center gap-2 text-xs">
+        {% if offline %}
+        <span class="rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-medium text-amber-300"
+              title="No DNS or threat-intelligence traffic leaves this server.">OFFLINE MODE</span>
+        {% endif %}
+        {% block header_extra %}{% endblock %}
+      </div>
+    </div>
+  </header>
+
+  <noscript>
+    <div class="mx-auto mt-4 max-w-3xl rounded border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
+      The dashboard needs JavaScript. You can still use the API directly (<code>POST /api/analyze</code>)
+      or the <code>phishtriage</code> command-line tool.
+    </div>
+  </noscript>
+
+  <main id="main" class="mx-auto max-w-7xl px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mx-auto max-w-7xl px-4 pb-10 pt-4 text-xs leading-relaxed text-slate-500">
+    {% block footer %}{% endblock %}
+  </footer>
+
+  <!-- Polite announcements for copy confirmations (filled by clipboard.js). -->
+  <div id="toast" class="pointer-events-none fixed bottom-4 right-4 z-50 max-w-xs rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 opacity-0 shadow-lg transition-opacity"
+       role="status" aria-live="polite" aria-atomic="true"></div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

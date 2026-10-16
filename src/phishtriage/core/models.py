@@ -376,7 +376,9 @@ class Attachment(_Model):
     @property
     def is_suspicious(self) -> bool:
         """True if any flag is MEDIUM or above, or intel marks it malicious."""
-        flagged = any(SEVERITY_WEIGHT[f.severity] >= SEVERITY_WEIGHT[Severity.MEDIUM] for f in self.flags)
+        flagged = any(
+            SEVERITY_WEIGHT[f.severity] >= SEVERITY_WEIGHT[Severity.MEDIUM] for f in self.flags
+        )
         return flagged or any(r.verdict is IntelVerdict.MALICIOUS for r in self.intel)
 
 

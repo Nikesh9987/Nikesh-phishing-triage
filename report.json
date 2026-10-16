@@ -1,0 +1,408 @@
+{
+  "report_id": "9dfd3d3266874dd389f31b79f4e4f189",
+  "generated_at": "2026-10-16T13:11:04.609454Z",
+  "tool_version": "1.0.0",
+  "filename": "",
+  "file_size": 1859,
+  "file_sha256": "47421312d28ca2404cf742ff547afbfb2e649771f126c8d34481c94a07057600",
+  "offline": true,
+  "message": {
+    "source_format": "eml",
+    "subject": "[bold red]URGENT[/] verify your account",
+    "from_address": {
+      "display_name": "PayPal Support",
+      "address": "security@paypa1.example",
+      "domain": "paypa1.example"
+    },
+    "to": [
+      {
+        "display_name": "",
+        "address": "victim@corp.example",
+        "domain": "corp.example"
+      }
+    ],
+    "reply_to": [
+      {
+        "display_name": "",
+        "address": "attacker@gmail.com",
+        "domain": "gmail.com"
+      }
+    ],
+    "return_path": "",
+    "message_id": "abc@mailer.example",
+    "date": "2026-10-12T08:59:00Z"
+  },
+  "headers": [
+    {
+      "name": "Received",
+      "value": "from mx1.corp.example (mx1.corp.example [10.0.0.5]) by mx2.corp.example with ESMTP id Q2; Mon, 12 Oct 2026 09:00:04 +0000"
+    },
+    {
+      "name": "Received",
+      "value": "from mail.evil.example (mail.evil.example [203.0.113.5]) by mx1.corp.example with ESMTPS id Q1; Mon, 12 Oct 2026 09:00:00 +0000"
+    },
+    {
+      "name": "From",
+      "value": "\"PayPal Support\" <security@paypa1.example>"
+    },
+    {
+      "name": "To",
+      "value": "victim@corp.example"
+    },
+    {
+      "name": "Reply-To",
+      "value": "attacker@gmail.com"
+    },
+    {
+      "name": "Subject",
+      "value": "[bold red]URGENT[/] verify your account"
+    },
+    {
+      "name": "Date",
+      "value": "Mon, 12 Oct 2026 08:59:00 +0000"
+    },
+    {
+      "name": "Message-ID",
+      "value": "<abc@mailer.example>"
+    },
+    {
+      "name": "Authentication-Results",
+      "value": "mx2.corp.example; spf=fail smtp.mailfrom=bounce@evil.example; dkim=none; dmarc=fail header.from=paypa1.example"
+    },
+    {
+      "name": "MIME-Version",
+      "value": "1.0"
+    },
+    {
+      "name": "Content-Type",
+      "value": "multipart/mixed; boundary=\"===============0745836862276623731==\""
+    }
+  ],
+  "received": {
+    "hops": [
+      {
+        "index": 0,
+        "raw": "from mail.evil.example (mail.evil.example [203.0.113.5]) by mx1.corp.example with ESMTPS id Q1; Mon, 12 Oct 2026 09:00:00 +0000",
+        "from_host": "mail.evil.example",
+        "by_host": "mx1.corp.example",
+        "protocol": "ESMTPS",
+        "envelope_for": "",
+        "queue_id": "Q1",
+        "timestamp": "2026-10-12T09:00:00Z",
+        "delay_seconds": null,
+        "ips": [
+          {
+            "address": "203.0.113.5",
+            "version": 4,
+            "scope": "reserved",
+            "rdns": null,
+            "rdns_error": null
+          }
+        ],
+        "anomalies": []
+      },
+      {
+        "index": 1,
+        "raw": "from mx1.corp.example (mx1.corp.example [10.0.0.5]) by mx2.corp.example with ESMTP id Q2; Mon, 12 Oct 2026 09:00:04 +0000",
+        "from_host": "mx1.corp.example",
+        "by_host": "mx2.corp.example",
+        "protocol": "ESMTP",
+        "envelope_for": "",
+        "queue_id": "Q2",
+        "timestamp": "2026-10-12T09:00:04Z",
+        "delay_seconds": 4.0,
+        "ips": [
+          {
+            "address": "10.0.0.5",
+            "version": 4,
+            "scope": "private",
+            "rdns": null,
+            "rdns_error": null
+          }
+        ],
+        "anomalies": []
+      }
+    ],
+    "originating_mta": {
+      "ip": "203.0.113.5",
+      "hostname": "mail.evil.example",
+      "rdns": null,
+      "hop_index": 0,
+      "reason": "Oldest Received hop with a public sending IP (hop #1 of 2). Hops below it are unverifiable and may be forged."
+    },
+    "total_delay_seconds": 4.0,
+    "warnings": []
+  },
+  "authentication": {
+    "from_domain": "paypa1.example",
+    "spf": {
+      "method": "spf",
+      "status": "fail",
+      "source": "header",
+      "domain": "evil.example",
+      "aligned": false,
+      "selector": "",
+      "detail": "Reported by mx2.corp.example.",
+      "raw": "spf=fail smtp.mailfrom=bounce@evil.example"
+    },
+    "dkim": [
+      {
+        "method": "dkim",
+        "status": "none",
+        "source": "header",
+        "domain": "",
+        "aligned": null,
+        "selector": "",
+        "detail": "Reported by mx2.corp.example.",
+        "raw": "dkim=none"
+      }
+    ],
+    "dmarc": {
+      "method": "dmarc",
+      "status": "fail",
+      "source": "header",
+      "domain": "paypa1.example",
+      "aligned": false,
+      "selector": "",
+      "detail": "Reported by mx2.corp.example.",
+      "raw": "dmarc=fail header.from=paypa1.example"
+    },
+    "dmarc_policy": null,
+    "warnings": []
+  },
+  "iocs": [
+    {
+      "type": "url",
+      "value": "http://evil.example/login",
+      "defanged": "hxxp[://]evil[.]example/login",
+      "sources": [
+        "body_text",
+        "body_html"
+      ],
+      "count": 2,
+      "intel": []
+    },
+    {
+      "type": "url",
+      "value": "https://www.paypal.com/signin",
+      "defanged": "hxxps[://]www[.]paypal[.]com/signin",
+      "sources": [
+        "body_html"
+      ],
+      "count": 1,
+      "intel": []
+    },
+    {
+      "type": "email",
+      "value": "security@paypa1.example",
+      "defanged": "security[@]paypa1[.]example",
+      "sources": [
+        "headers"
+      ],
+      "count": 1,
+      "intel": []
+    },
+    {
+      "type": "email",
+      "value": "attacker@gmail.com",
+      "defanged": "attacker[@]gmail[.]com",
+      "sources": [
+        "headers"
+      ],
+      "count": 1,
+      "intel": []
+    },
+    {
+      "type": "email",
+      "value": "bounce@evil.example",
+      "defanged": "bounce[@]evil[.]example",
+      "sources": [
+        "headers"
+      ],
+      "count": 1,
+      "intel": []
+    },
+    {
+      "type": "domain",
+      "value": "paypa1.example",
+      "defanged": "paypa1[.]example",
+      "sources": [
+        "headers"
+      ],
+      "count": 1,
+      "intel": []
+    },
+    {
+      "type": "domain",
+      "value": "gmail.com",
+      "defanged": "gmail[.]com",
+      "sources": [
+        "headers"
+      ],
+      "count": 1,
+      "intel": []
+    },
+    {
+      "type": "domain",
+      "value": "evil.example",
+      "defanged": "evil[.]example",
+      "sources": [
+        "headers",
+        "body_text",
+        "body_html"
+      ],
+      "count": 3,
+      "intel": []
+    },
+    {
+      "type": "domain",
+      "value": "www.paypal.com",
+      "defanged": "www[.]paypal[.]com",
+      "sources": [
+        "body_html"
+      ],
+      "count": 1,
+      "intel": []
+    },
+    {
+      "type": "ipv4",
+      "value": "203.0.113.5",
+      "defanged": "203[.]0[.]113[.]5",
+      "sources": [
+        "received"
+      ],
+      "count": 1,
+      "intel": []
+    }
+  ],
+  "attachments": [
+    {
+      "filename": "invoice.pdf",
+      "size": 192,
+      "md5": "0d91886f71daf4eb9cf83e4daefea3bc",
+      "sha1": "f9df81532022012d97b6aa0244c0c9f986824a57",
+      "sha256": "257a0e75d876684007e2a3c9a85517812ecd3ad5a5e277f8d474b57a0c4c8cb8",
+      "declared_content_type": "application/pdf",
+      "detected_mime": "application/vnd.microsoft.portable-executable",
+      "detected_extension": "exe",
+      "is_inline": false,
+      "skipped": false,
+      "flags": [
+        {
+          "code": "disguised_executable",
+          "severity": "critical",
+          "description": "Content is a EXE executable but the file is named '.pdf'."
+        }
+      ],
+      "intel": []
+    }
+  ],
+  "findings": [
+    {
+      "code": "attachment_disguised_executable",
+      "severity": "critical",
+      "title": "Attachment: disguised executable",
+      "detail": "Content is a EXE executable but the file is named '.pdf'.",
+      "evidence": [
+        "invoice.pdf: Content is a EXE executable but the file is named '.pdf'."
+      ]
+    },
+    {
+      "code": "reply_to_mismatch",
+      "severity": "high",
+      "title": "Reply-To domain differs from the From domain",
+      "detail": "Replies would go to a different party than the apparent sender (a free-mail account).",
+      "evidence": [
+        "From paypa1[.]example / Reply-To attacker[@]gmail[.]com"
+      ]
+    },
+    {
+      "code": "lookalike_sender_domain",
+      "severity": "high",
+      "title": "Sender domain imitates a known brand",
+      "detail": "The domain imitates 'paypal' with look-alike characters.",
+      "evidence": [
+        "paypa1[.]example"
+      ]
+    },
+    {
+      "code": "link_text_mismatch",
+      "severity": "high",
+      "title": "Link text shows one website but the link goes to another",
+      "detail": "Classic phishing disguise: the visible address is not where the link leads.",
+      "evidence": [
+        "text 'hxxps[://]www[.]paypal[.]com/signin' links to hxxp[://]evil[.]example/login"
+      ]
+    },
+    {
+      "code": "html_password_field",
+      "severity": "high",
+      "title": "Message body contains a password field",
+      "detail": "1 password input(s) found in the HTML body.",
+      "evidence": []
+    },
+    {
+      "code": "dmarc_fail",
+      "severity": "high",
+      "title": "DMARC failed",
+      "detail": "Neither SPF nor DKIM passed with an aligned domain.",
+      "evidence": [
+        "Reported by mx2[.]corp[.]example."
+      ]
+    },
+    {
+      "code": "spf_fail",
+      "severity": "high",
+      "title": "SPF failed",
+      "detail": "The sending server is not authorised for the envelope domain.",
+      "evidence": [
+        "Reported by mx2[.]corp[.]example."
+      ]
+    },
+    {
+      "code": "display_name_brand_impersonation",
+      "severity": "medium",
+      "title": "Display name uses a brand name from an unrelated sender domain",
+      "detail": "'paypal' is not associated with the sender domain.",
+      "evidence": [
+        "Display name 'PayPal Support' / sender security[@]paypa1[.]example"
+      ]
+    },
+    {
+      "code": "html_form_in_body",
+      "severity": "medium",
+      "title": "Message body contains an HTML form",
+      "detail": "Legitimate mail rarely embeds forms; they are used to harvest input directly.",
+      "evidence": [
+        "(no action)"
+      ]
+    },
+    {
+      "code": "social_engineering_language",
+      "severity": "medium",
+      "title": "Message uses pressure, credential or payment language",
+      "detail": "Matched 4 phrase(s) across 2 categories. Language alone is weak evidence; weigh it with the other findings.",
+      "evidence": [
+        "urgency: urgent",
+        "urgency: will be suspended",
+        "urgency: within 24 hours",
+        "credentials: verify your account"
+      ]
+    },
+    {
+      "code": "message_id_domain_mismatch",
+      "severity": "info",
+      "title": "Message-ID domain differs from the From domain",
+      "detail": "Common with ESPs; notable when combined with other findings.",
+      "evidence": [
+        "From paypa1[.]example / Message-ID abc[@]mailer[.]example"
+      ]
+    }
+  ],
+  "risk_score": 93,
+  "verdict": "malicious",
+  "intel_providers_used": [],
+  "warnings": [
+    "Offline mode: reverse DNS, SPF/DKIM/DMARC DNS fallbacks and threat-intelligence lookups were skipped."
+  ]
+}

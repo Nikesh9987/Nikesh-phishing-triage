@@ -158,7 +158,9 @@ def configure_logging(
     # never below WARNING for HTTP libs, which can log URLs containing keys.
     for name in _NOISY_LOGGERS:
         logging.getLogger(name).setLevel(
-            logging.WARNING if numeric_level > logging.DEBUG or name in ("httpx", "httpcore") else numeric_level
+            logging.WARNING
+            if numeric_level > logging.DEBUG or name in ("httpx", "httpcore")
+            else numeric_level
         )
 
     return logger

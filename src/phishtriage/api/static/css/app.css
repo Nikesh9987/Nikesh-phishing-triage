@@ -1,1 +1,113 @@
 ﻿[hidden]{display:none!important}
+/*
+ * Dashboard styles that Tailwind utilities can't express: state colours driven
+ * by data-* attributes set in render.js, plus a few component classes.
+ * Plain CSS only (no build step). Loaded before the Tailwind CDN script, so
+ * selectors here are specific enough not to be overridden by its utilities.
+ */
+
+html { color-scheme: dark; }
+
+/* Tailwind's `flex` utility would otherwise override the hidden attribute. */
+[hidden] { display: none !important; }
+
+:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+
+/* ------------------------------------------------------------------ copy buttons */
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid #334155;
+  border-radius: 0.25rem;
+  background: #1e293b;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.copy-btn:hover { background: #334155; border-color: #475569; color: #f1f5f9; }
+.copy-btn:active { background: #0f172a; }
+
+/* --------------------------------------------------------------------- badges */
+.auth-badge,
+.sev-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.1rem;
+  white-space: nowrap;
+}
+
+.auth-badge[data-status="pass"] { background: #15803d; color: #fff; }
+.auth-badge[data-status="fail"] { background: #dc2626; color: #fff; }
+.auth-badge[data-status="softfail"],
+.auth-badge[data-status="neutral"] { background: #f59e0b; color: #1c1917; }
+.auth-badge[data-status="temperror"],
+.auth-badge[data-status="permerror"] { background: #7e22ce; color: #fff; }
+.auth-badge[data-status="none"],
+.auth-badge[data-status="policy"],
+.auth-badge[data-status="unknown"] { background: #1e293b; color: #94a3b8; border-color: #334155; }
+
+.sev-badge[data-severity="critical"] { background: #dc2626; color: #fff; }
+.sev-badge[data-severity="high"] { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.5); }
+.sev-badge[data-severity="medium"] { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border-color: rgba(245, 158, 11, 0.5); }
+.sev-badge[data-severity="low"] { background: rgba(6, 182, 212, 0.15); color: #67e8f9; border-color: rgba(6, 182, 212, 0.45); }
+.sev-badge[data-severity="info"] { background: #1e293b; color: #94a3b8; border-color: #334155; }
+
+/* ---------------------------------------------------------------- verdict card */
+#verdict-card { border-left: 4px solid #475569; }
+#verdict-card[data-verdict="malicious"] { border-left-color: #ef4444; }
+#verdict-card[data-verdict="suspicious"] { border-left-color: #f59e0b; }
+#verdict-card[data-verdict="low_risk"] { border-left-color: #06b6d4; }
+#verdict-card[data-verdict="clean"] { border-left-color: #22c55e; }
+
+#verdict-badge { background: #334155; color: #e2e8f0; }
+#verdict-card[data-verdict="malicious"] #verdict-badge { background: #dc2626; color: #fff; }
+#verdict-card[data-verdict="suspicious"] #verdict-badge { background: #f59e0b; color: #1c1917; }
+#verdict-card[data-verdict="low_risk"] #verdict-badge { background: #06b6d4; color: #083344; }
+#verdict-card[data-verdict="clean"] #verdict-badge { background: #16a34a; color: #fff; }
+
+#risk-meter-fill { background: #475569; transition: width 0.4s ease; }
+#verdict-card[data-verdict="malicious"] #risk-meter-fill { background: #ef4444; }
+#verdict-card[data-verdict="suspicious"] #risk-meter-fill { background: #f59e0b; }
+#verdict-card[data-verdict="low_risk"] #risk-meter-fill { background: #06b6d4; }
+#verdict-card[data-verdict="clean"] #risk-meter-fill { background: #22c55e; }
+
+/* ------------------------------------------------ alignment and threat-intel text */
+[data-aligned="true"] { color: #4ade80; }
+[data-aligned="false"] { color: #f87171; font-weight: 700; }
+[data-aligned="unknown"] { color: #64748b; }
+
+[data-intel="malicious"] { color: #f87171; font-weight: 600; }
+[data-intel="suspicious"] { color: #fbbf24; }
+[data-intel="clean"] { color: #4ade80; }
+[data-intel="unknown"],
+[data-intel="error"],
+[data-intel="none"] { color: #64748b; }
+
+/* ---------------------------------------------------------------- delivery path */
+.hop[data-origin="true"] { border-left-color: #10b981; }
+.hop[data-origin="true"] .hop-dot { background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25); }
+
+/* --------------------------------------------------------------------- dropzone */
+#dropzone[data-dragover="true"] { border-color: #10b981; background: rgba(16, 185, 129, 0.06); }
+
+/* ------------------------------------------------------------------------ misc */
+code, .font-mono { overflow-wrap: anywhere; }
+details > summary { list-style-position: inside; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+@media print {
+  body { background: #fff; color: #000; }
+  #analyze-form, #new-analysis-btn, #delete-report-btn, .copy-btn { display: none !important; }
+}
