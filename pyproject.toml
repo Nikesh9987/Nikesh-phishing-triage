@@ -39,6 +39,7 @@ dev = [
 
 [project.scripts]
 phishtriage = "phishtriage.cli.main:main"
+phishtriage-api = "phishtriage.api.app:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]
