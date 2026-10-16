@@ -87,9 +87,7 @@ class EmlParser:
         try:
             msg = email.message_from_bytes(data, policy=policy.compat32)
         except Exception as exc:  # noqa: BLE001 - stdlib parser on hostile bytes
-            raise MalformedMessageError(
-                f"Could not parse message: {type(exc).__name__}"
-            ) from exc
+            raise MalformedMessageError(f"Could not parse message: {type(exc).__name__}") from exc
 
         headers = self._extract_headers(msg)
         if not headers:
@@ -294,7 +292,9 @@ class EmlParser:
         if state.parts_truncated:
             warnings.append(f"MIME part count exceeded {_MAX_MIME_PARTS}; remaining parts ignored.")
         if state.depth_exceeded:
-            warnings.append(f"MIME nesting exceeded {_MAX_MIME_DEPTH} levels; deeper parts ignored.")
+            warnings.append(
+                f"MIME nesting exceeded {_MAX_MIME_DEPTH} levels; deeper parts ignored."
+            )
         if state.attachments_truncated:
             warnings.append("Attachment limit reached; additional attachments were not processed.")
         if state.defects:

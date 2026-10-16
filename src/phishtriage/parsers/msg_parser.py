@@ -300,7 +300,9 @@ class MsgParser:
         result: list[RawAttachment] = []
         for position, att in enumerate(items, start=1):
             if len(result) >= self._max_attachments:
-                warnings.append("Attachment limit reached; additional attachments were not processed.")
+                warnings.append(
+                    "Attachment limit reached; additional attachments were not processed."
+                )
                 break
             try:
                 converted = self._convert_attachment(att, position, subject, warnings)

@@ -27,7 +27,6 @@ from phishtriage.core.exceptions import (
     InputError,
     MalformedMessageError,
     MissingDependencyError,
-    ParserError,
     PhishTriageError,
     UnsupportedFormatError,
 )
@@ -74,7 +73,8 @@ _KNOWN_HEADERS = frozenset(
     }
 )  # fmt: skip
 
-_UNFOLD_RE = re.compile(r"\r?\n(?=[ \t])")
+# _UNFOLD_RE = re.compile(r"\r?\n(?=[ \t])")
+_UNFOLD_RE = re.compile(r"\r?\n[ \t]+")
 _LINEBREAK_RE = re.compile(r"[\r\n]+")
 _CTRL_HEADER_RE = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
 _CTRL_BODY_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
@@ -254,9 +254,16 @@ def to_text(value: object) -> str:
         return text.encode("utf-8", "replace").decode("utf-8", "replace")
 
 
+# def clean_header_text(value: object) -> str:
+#     """Unfold a header into one line and strip control characters."""
+#     text = _UNFOLD_RE.sub("", to_text(value))
+#     text = _LINEBREAK_RE.sub(" ", text)
+#     return _CTRL_HEADER_RE.sub("", text).strip()
+
+
 def clean_header_text(value: object) -> str:
     """Unfold a header into one line and strip control characters."""
-    text = _UNFOLD_RE.sub("", to_text(value))
+    text = _UNFOLD_RE.sub(" ", to_text(value))
     text = _LINEBREAK_RE.sub(" ", text)
     return _CTRL_HEADER_RE.sub("", text).strip()
 
