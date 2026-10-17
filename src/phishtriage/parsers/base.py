@@ -73,7 +73,7 @@ _KNOWN_HEADERS = frozenset(
     }
 )  # fmt: skip
 
-# _UNFOLD_RE = re.compile(r"\r?\n(?=[ \t])")
+# _UNFOLD_RE = re.compile(r"\r?\n[ \t]+")
 _UNFOLD_RE = re.compile(r"\r?\n[ \t]+")
 _LINEBREAK_RE = re.compile(r"[\r\n]+")
 _CTRL_HEADER_RE = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
