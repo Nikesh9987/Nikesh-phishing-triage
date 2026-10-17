@@ -220,7 +220,9 @@ that cannot run, and macro analysis is tested through a fake at the `oletools` s
 
 ## License
 
-MIT. See the [LICENSE](LICENSE) file.
+[PolyForm Noncommercial 1.0.0](LICENSE). Free for personal, educational, research and non-profit use. Commercial use, including selling or offering it as a paid service, is not permitted.
+
+Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Author
 
