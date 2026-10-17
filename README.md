@@ -220,4 +220,8 @@ that cannot run, and macro analysis is tested through a fake at the `oletools` s
 
 ## License
 
-MIT.
+MIT. See the [LICENSE](LICENSE) file.
+
+## Author
+
+Built by **Nikesh Mandal** ([GitHub](https://github.com/Nikesh9987))
