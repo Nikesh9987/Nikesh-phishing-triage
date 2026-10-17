@@ -4,18 +4,42 @@
       context: .
       dockerfile: Dockerfile
     image: phishing-triage:1.0.0
-    container_name: phishtriage
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 20s
+
     ports:
-      - "8000:8000"
+      - "${PHISHTRIAGE_BIND:-127.0.0.1}:${PHISHTRIAGE_API_PORT:-8000}:${PHISHTRIAGE_API_PORT:-8000}"
+
+    environment:
+      PHISHTRIAGE_ENVIRONMENT: ${PHISHTRIAGE_ENVIRONMENT:-production}
+      PHISHTRIAGE_LOG_LEVEL: ${PHISHTRIAGE_LOG_LEVEL:-INFO}
+      PHISHTRIAGE_LOG_FORMAT: ${PHISHTRIAGE_LOG_FORMAT:-text}
+      PHISHTRIAGE_OFFLINE: ${PHISHTRIAGE_OFFLINE:-false}
+      PHISHTRIAGE_API_PORT: ${PHISHTRIAGE_API_PORT:-8000}
+      PHISHTRIAGE_API_RATE_LIMIT_PER_MINUTE: ${PHISHTRIAGE_API_RATE_LIMIT_PER_MINUTE:-30}
+      PHISHTRIAGE_MAX_UPLOAD_BYTES: ${PHISHTRIAGE_MAX_UPLOAD_BYTES:-26214400}
+      PHISHTRIAGE_ENABLE_API_DOCS: ${PHISHTRIAGE_ENABLE_API_DOCS:-false}
+      PHISHTRIAGE_DNS_NAMESERVERS: ${PHISHTRIAGE_DNS_NAMESERVERS:-}
+      PHISHTRIAGE_API_CORS_ORIGINS: ${PHISHTRIAGE_API_CORS_ORIGINS:-}
+      URLHAUS_AUTH_KEY: ${URLHAUS_AUTH_KEY:-}
+      ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY:-}
+      VIRUSTOTAL_API_KEY: ${VIRUSTOTAL_API_KEY:-}
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-127.0.0.1}
+
     read_only: true
     tmpfs:
-      - /tmp:rw,noexec,nosuid,size=64m
-    security_opt:
-      - no-new-privileges:true
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
     cap_drop:
       - ALL
-    environment:
-      - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY:-}
-      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY:-}
-      - URLHAUS_AUTH_KEY=${URLHAUS_AUTH_KEY:-}
-    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 1g
+    cpus: 2
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
